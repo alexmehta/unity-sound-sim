@@ -28,7 +28,7 @@ public static class Filter{
         }     
 
     }
-    public static Vector3 Round(this Vector3 vector3, int decimalPlaces = 3)
+    public static Vector3 Round(this Vector3 vector3, int decimalPlaces = 1)
     {
          float multiplier = 1;
          for (int i = 0; i < decimalPlaces; i++)
