@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Runtime.InteropServices;
-
+using static Filter;
 public class scr: MonoBehaviour
 {
 
@@ -19,7 +19,7 @@ public class scr: MonoBehaviour
 
     public float timeDelay;
     float timeCounter = 1;
-
+    float pitchsensitivity = 2;
 
     public AudioSource clip;
     public int beepinterval = 4;
@@ -88,7 +88,9 @@ public class scr: MonoBehaviour
 
             List<List<Vector3>> newflooded = floodfill(l);
             flooded = newflooded;
-
+            print(flooded[0][0]);
+            filter(ref flooded); 
+            print(flooded[0][0]);
             currentobject = 0;
             currentvector = 0;
 
@@ -97,7 +99,6 @@ public class scr: MonoBehaviour
 
         if (framecounter % beepinterval == 0 && flooded.Count > currentobject)
         {
-
             if(currentvector >= flooded[currentobject].Count)
             {
                 flooded.RemoveAt(0);//currentobject++;
@@ -121,17 +122,12 @@ public class scr: MonoBehaviour
          
         
 
-        print( (1 / Time.deltaTime) + " " + flooded.Count);
+        // print( (1 / Time.deltaTime) + " " + flooded.Count);
 
 
 
     }
-    public float pitchfunction(float distance)
-    {
-
-        return (1 / (distance + 1));
-
-    }
+    
     public void drawmeshes()
 	{
         foreach (GameObject old in lastGen)
@@ -263,5 +259,10 @@ public class scr: MonoBehaviour
     {
         return (i + (i >> 31)) ^ (i >> 31);
     }
+    public float pitchfunction(float distance)
+    {
 
+        return (1 / (distance*pitchsensitivity + 1));
+
+    }
 }

@@ -7,7 +7,7 @@ public class deletebeep : MonoBehaviour
     // Start is called before the first frame update
 
     float time = 0;
-    float endtime = 0.1f;
+    float endtime = 0.2f;
 
     void Start()
     {
