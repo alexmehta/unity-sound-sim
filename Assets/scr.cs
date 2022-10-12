@@ -283,6 +283,8 @@ public class scr : MonoBehaviour
     public List<List<Vector3>> filter(List<List<Vector3>> flooded)
 	{
 
+        flooded.Sort(depthsort);
+
         return flooded.ConvertAll(list =>
         {
 
@@ -324,4 +326,19 @@ public class scr : MonoBehaviour
 
 	}
 
+    public int depthsort(List<Vector3> l1, List<Vector3> l2)
+	{
+
+        float s1 = 0;
+        float s2 = 0;
+
+        l1.ForEach(v => s1 += v.z);
+        l2.ForEach(v => s2 += v.z);
+
+        s1 /= l1.Count;
+        s2 /= l2.Count;
+
+        return s1.CompareTo(s2);
+
+	}
 }
