@@ -1,13 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
-using System;
-using System.Runtime.InteropServices;
-using System.Linq;
-
-public class scr : MonoBehaviour
-{
     Mesh mesh;
     Vector3[] mesharr;
 
@@ -123,13 +113,20 @@ public class scr : MonoBehaviour
 			}
 			if(flooded.Count > currentobject && flooded[currentobject].Count > 0)
 			{
+                Vector3 vec = flooded[currentobject][currentvector];
+
                 AudioSource cloneclip = Instantiate(clip);
-                cloneclip.transform.position = flooded[currentobject][currentvector];
+                cloneclip.transform.position = vec;
                 
                 flooded[currentobject].RemoveAt(0);//currentvector++;
-                
-                float distance = Vector3.Distance( cloneclip.transform.position, Camera.main.transform.position );
-                cloneclip.pitch = pitchfunction(distance);
+
+
+
+                float sy = Camera.main.WorldToScreenPoint(vec).y;
+
+                float py = sy / Screen.height;
+
+                cloneclip.pitch = py;
             }
 
 
@@ -339,4 +336,3 @@ public class scr : MonoBehaviour
         return s1.CompareTo(s2);
 
 	}
-}
