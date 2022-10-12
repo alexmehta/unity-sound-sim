@@ -300,8 +300,6 @@ public class scr : MonoBehaviour
     }
     public Vector3 round(Vector3 vector3)
     {
-        distancesort(vector3, vector3);
-
         vector3.x = Mathf.Round(vector3.x * roundfactor) / roundfactor;
         vector3.y = Mathf.Round(vector3.y * roundfactor) / roundfactor;
         vector3.z = Mathf.Round(vector3.z * roundfactor) / roundfactor;
