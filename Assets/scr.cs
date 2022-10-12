@@ -4,22 +4,27 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Runtime.InteropServices;
-using static Filter;
-public class scr: MonoBehaviour
+using System.Linq;
+
+public class scr : MonoBehaviour
 {
 
-    public Mesh mesh;
+    Mesh mesh;
     Vector3[] mesharr;
 
     public GameObject pointobj;
+    RsPointCloudRenderer rp;
     public GameObject prefab;
 
     List<GameObject> lastGen;
     List<List<Vector3>> flooded;
 
+    public int objectthreshold = 5;
+    public int roundfactor = 20;
+
     public float timeDelay;
     float timeCounter = 1;
-    float pitchsensitivity = 2;
+
 
     public AudioSource clip;
     public int beepinterval = 4;
@@ -31,9 +36,14 @@ public class scr: MonoBehaviour
     int h = 480;
     
     public int skip = 40;
+    public float pitchsensitivity = 1;
+
+    
 
     void Start()
     {
+
+        rp = pointobj.GetComponent<RsPointCloudRenderer>();
         lastGen = new List<GameObject>();
         flooded = new List<List<Vector3>>();
 
@@ -59,6 +69,11 @@ public class scr: MonoBehaviour
 		}
 
 
+
+        if(rp.mesh == null) return;
+        if (mesh == null) mesh = rp.mesh;
+
+
         
 
 		if (flood)
@@ -79,7 +94,8 @@ public class scr: MonoBehaviour
 
                     Vector3 clone = mesharr[i * w + j];
                     clone.Scale(scaleVector);
-                    l[index++] = clone;
+                    l[index] = clone;
+                    index++;
 
                 }
 
@@ -87,10 +103,11 @@ public class scr: MonoBehaviour
             }
 
             List<List<Vector3>> newflooded = floodfill(l);
+
+            newflooded = filter(newflooded);
+
             flooded = newflooded;
-            print(flooded[0][0]);
-            filter(ref flooded); 
-            print(flooded[0][0]);
+
             currentobject = 0;
             currentvector = 0;
 
@@ -98,21 +115,22 @@ public class scr: MonoBehaviour
 
 
         if (framecounter % beepinterval == 0 && flooded.Count > currentobject)
-        {
+		{
+
             if(currentvector >= flooded[currentobject].Count)
-            {
+			{
                 flooded.RemoveAt(0);//currentobject++;
                 currentvector = 0;
-            }
-            if(flooded.Count > currentobject)
-            {
+			}
+			if(flooded.Count > currentobject && flooded[currentobject].Count > 0)
+			{
                 AudioSource cloneclip = Instantiate(clip);
                 cloneclip.transform.position = flooded[currentobject][currentvector];
+                
                 flooded[currentobject].RemoveAt(0);//currentvector++;
                 
                 float distance = Vector3.Distance( cloneclip.transform.position, Camera.main.transform.position );
                 cloneclip.pitch = pitchfunction(distance);
-
             }
 
 
@@ -122,12 +140,20 @@ public class scr: MonoBehaviour
          
         
 
-        // print( (1 / Time.deltaTime) + " " + flooded.Count);
+        print("FPS: " + (1 / Time.deltaTime));
 
 
 
     }
-    
+
+    public float pitchfunction(float distance)
+	{
+
+        return (1 / (distance*pitchsensitivity + 1));
+
+	}
+
+
     public void drawmeshes()
 	{
         foreach (GameObject old in lastGen)
@@ -188,7 +214,7 @@ public class scr: MonoBehaviour
 
         List<List<Vector3>> flooded = new List<List<Vector3>>();
 
-        float threshold = Mathf.Sqrt(0.2f);
+        float threshold = 0.15f;
 
         bool breakout = false;
 
@@ -205,7 +231,7 @@ public class scr: MonoBehaviour
 
             for(var a = 0; a < passed.Length; a++)
 			{
-                if(passed[a] == 0 && array[a] != Vector3.zero)
+                if(passed[a] == 0)
 				{
                     nextflood.Push(array[a]);
                     passed[a] = 1;
@@ -221,6 +247,7 @@ public class scr: MonoBehaviour
 
                 current.Add(start);
 
+
                 for (var a = 0; a < array.Length; a++)
 				{
 
@@ -232,8 +259,7 @@ public class scr: MonoBehaviour
 
                         if( Vector3.SqrMagnitude(start - array[a]) < threshold )
 						{
-                            //Remove origin points
-                            if(array[a] != Vector3.zero) nextflood.Push(array[a]);
+                            nextflood.Push(array[a]);
                             passed[a] = 1;
 						}
 
@@ -255,14 +281,26 @@ public class scr: MonoBehaviour
 
 	}
 
-    public static int positive(int i)
-    {
-        return (i + (i >> 31)) ^ (i >> 31);
-    }
-    public float pitchfunction(float distance)
-    {
+    public List<List<Vector3>> filter(List<List<Vector3>> flooded)
+	{
 
-        return (1 / (distance*pitchsensitivity + 1));
+        return flooded.ConvertAll(list =>
+        {
+            return list.ConvertAll(round)
+            .Distinct()
+            .Where(v => v != Vector3.zero).ToList();
+            
+        }).Where(f => f.Count >= objectthreshold).ToList();
 
     }
+    public Vector3 round(Vector3 vector3)
+    {
+        vector3.x = Mathf.Round(vector3.x * roundfactor) / roundfactor;
+        vector3.y = Mathf.Round(vector3.y * roundfactor) / roundfactor;
+        vector3.z = Mathf.Round(vector3.z * roundfactor) / roundfactor;
+
+        return vector3;
+
+    }
+
 }
