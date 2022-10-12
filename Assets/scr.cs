@@ -322,7 +322,7 @@ public class scr : MonoBehaviour
 
 
 
-        return d1.CompareTo(d2);
+        return (v1.z).CompareTo(v2.z);
 
 	}
 
