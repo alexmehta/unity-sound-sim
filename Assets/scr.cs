@@ -8,7 +8,6 @@ using System.Linq;
 
 public class scr : MonoBehaviour
 {
-
     Mesh mesh;
     Vector3[] mesharr;
 
@@ -140,7 +139,7 @@ public class scr : MonoBehaviour
          
         
 
-        print("FPS: " + (1 / Time.deltaTime));
+        //print("FPS: " + (1 / Time.deltaTime));
 
 
 
@@ -286,15 +285,21 @@ public class scr : MonoBehaviour
 
         return flooded.ConvertAll(list =>
         {
+
+            list.Sort(distancesort);
+
             return list.ConvertAll(round)
             .Distinct()
             .Where(v => v != Vector3.zero).ToList();
+
             
         }).Where(f => f.Count >= objectthreshold).ToList();
 
     }
     public Vector3 round(Vector3 vector3)
     {
+        distancesort(vector3, vector3);
+
         vector3.x = Mathf.Round(vector3.x * roundfactor) / roundfactor;
         vector3.y = Mathf.Round(vector3.y * roundfactor) / roundfactor;
         vector3.z = Mathf.Round(vector3.z * roundfactor) / roundfactor;
@@ -302,5 +307,21 @@ public class scr : MonoBehaviour
         return vector3;
 
     }
+
+    public int distancesort(Vector3 v1, Vector3 v2)
+	{
+        Vector2 s1 = Camera.main.WorldToScreenPoint(v1);
+        Vector2 s2 = Camera.main.WorldToScreenPoint(v2);
+
+        float d1 = Mathf.Floor(s1.x) * Screen.height + s1.y;
+        float d2 = Mathf.Floor(s2.x) * Screen.height + s2.y;
+
+        print(s1);
+
+
+
+        return d1.CompareTo(d2);
+
+	}
 
 }
