@@ -1,0 +1,5 @@
+-Pitch is much more distinguisheable than volume
+
+-Sounds must be sorted by z-depth to make it easier to visualize
+  -I believe this is because sorting by z-depth creates these sound "gradients", which allow you to tell the curvature of a space, where as no sorting at all
+  forces you to individually identify sounds, rather than relative to other sounds.
